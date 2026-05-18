@@ -1,6 +1,4 @@
 from dataclasses import dataclass, field
-# Some comments will be removed later, dont worry about them
-# Sorry for writting a novel here :(
 
 
 @dataclass(frozen=True)
@@ -15,11 +13,6 @@ class Project:
     capacity: int = 1
 
 
-# later I will explain this on detail:
-# Here, tuple was used instead of list for students and projects 
-# because tuples are immutable in our dataclass.
-# This immutability can help prevent accidental changes later on
-# (And it also looks fancier than lists :P)
 @dataclass(frozen=True)
 class Instance:
     students: tuple[Student, ...]
@@ -29,9 +22,6 @@ class Instance:
     _student_by_id: dict[int, Student] = field(default_factory=dict, repr=False, compare=False)
     _project_by_id: dict[int, Project] = field(default_factory=dict, repr=False, compare=False)
     
-    # called immediately after the dataclass is initialized, 
-    # and it is used to perform some checks and create some 
-    # caches for faster lookup later on
     def __post_init__(self): 
         #creating a cache for students and projects by id for faster lookup
         temp_stu = {} 
@@ -65,7 +55,7 @@ class Instance:
     def project(self, project_id: int) -> Project:
         return self._project_by_id[project_id]
 
-    # now, I thought for more than 30 minutes about what should we 
+    # now, I thought for more a moment about what should we 
     # consider when a student forgets or simply doesn't have a preference for a project, 
     # and I decided that in this case, we will consider that the student id indifferent 
     # to the remaining projects, and we will simply add all the projects to the student's 
