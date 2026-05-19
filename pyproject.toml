@@ -7,8 +7,9 @@ name = "matching-project"
 version = "0.1.0"
 requires-python = ">=3.10"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["core", "data", "mechanisms", "metrics"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
