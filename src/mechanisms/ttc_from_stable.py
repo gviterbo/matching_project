@@ -1,6 +1,13 @@
 from core.instance import Instance
 from core.matching import Matching 
 
+"""
+We choose to implement the ttc that improves a stable solution
+because the more important is that everyone gets a project 
+and the ttc algorithm garantees a pareto-optimal solution but not
+a stable one.
+"""
+
 # Implementation of the "Top Trading Cycle" Algorithm
 def ttc_from_stable(matching : Matching, useGPA = True) -> Matching : 
     instance = matching.instance
