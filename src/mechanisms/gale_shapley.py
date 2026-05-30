@@ -2,7 +2,7 @@ from core.instance import Instance
 from core.matching import Matching
 from collections import deque
 
-def gale_shapley(instance: Instance) -> Matching:
+def gale_shapley(instance: Instance, useGPA = False) -> Matching:
     matching = Matching(instance)
     capacities = {project.id: project.capacity for project in instance.projects}
     free = deque(instance.students)
@@ -27,18 +27,20 @@ def gale_shapley(instance: Instance) -> Matching:
 
         else:
             assigned_students = matching.students_in(project.id)
-            
-            former_student_id = min(assigned_students, key=lambda s: instance.students[s].gpa)
-            former_student = instance.students[former_student_id]
+            if useGPA : 
+                former_student_id = min(assigned_students, key=lambda s: instance.students[s].gpa)
+                former_student = instance.students[former_student_id]
 
-            if student.gpa > former_student.gpa:
-                matching.unassign(former_student.id)
-                matching.assign(student.id, project.id)
-                free.popleft()
-                free.append(former_student)
+                if student.gpa > former_student.gpa:
+                    matching.unassign(former_student.id)
+                    matching.assign(student.id, project.id)
+                    free.popleft()
+                    free.append(former_student)
+                
+                else:
+                    continue
             
-            else:
-                continue
+                
                 
             
     return matching
