@@ -17,7 +17,6 @@ def make_instance(n_students, n_projects, capacity=1, phi=0.5, seed=42):
     projects = tuple(Project(id=j, capacity=capacity) for j in range(n_projects))
     return Instance(students=students, projects=projects, preferences=preferences)
 
-
 """
 instance = make_instance(n_students=20, n_projects=8, capacity=3, phi=0.5)
 print(instance)
