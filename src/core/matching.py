@@ -42,3 +42,14 @@ class Matching:
     def is_complete(self) -> bool:
         return len(self.assignments) == len(self.instance.students)
     
+    def __str__(self):
+        lines = ["---------- Student -> Project ----------"]
+        for student_id, project_id in self.assignments.items():
+            lines.append(f"Student {student_id} -> Project {project_id}")
+        lines.append("")
+        lines.append("---------- Project -> Students ----------")
+        for project_id, list_students in self._students_in_project.items():
+            lines.append(f"Project {project_id} -> Students {list_students}")
+        return "\n".join(lines)
+
+    
