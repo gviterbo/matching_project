@@ -1,4 +1,10 @@
 import numpy as np
+import sys, site
+for _sp in site.getsitepackages():
+    _mk_dir = _sp + "/mallows_models"
+    if __import__("os").path.isdir(_mk_dir):
+        sys.path.insert(0, _mk_dir)
+        break
 import mallows_kendall as mk
 from core.instance import Instance, Student, Project
 
@@ -12,4 +18,7 @@ def make_instance(n_students, n_projects, capacity=1, phi=0.5, seed=42):
     return Instance(students=students, projects=projects, preferences=preferences)
 
 
+"""
 instance = make_instance(n_students=20, n_projects=8, capacity=3, phi=0.5)
+print(instance)
+"""
