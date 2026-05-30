@@ -9,7 +9,7 @@ a stable one.
 """
 
 # Implementation of the "Top Trading Cycle" Algorithm
-def ttc_from_stable(matching : Matching, useGPA = True) -> Matching : 
+def ttc_from_stable(matching : Matching, useGPA = False) -> Matching : 
     instance = matching.instance
     current_matching = dict(matching.assignments)                                        # student.id -> project.id
     current_project_to_student = {project.id : [] for project in instance.projects}      # project.id -> [student.id]
@@ -22,8 +22,8 @@ def ttc_from_stable(matching : Matching, useGPA = True) -> Matching :
     elif useGPA: 
         sorted_by_gpa = sorted(instance.students, key=lambda s: s.gpa or 0, reverse=True)
         project_preferences = {project.id : [student.id for student in sorted_by_gpa] for project in instance.projects}
-    else : 
-        project_preferences = {project.id : list(matching.assignments.keys())}
+    else :
+        project_preferences = {project.id : list(matching.assignments.keys()) for project in instance.projects}
 
     # each students only keeps the projects that are strictly better than the one they currently have
     student_preferences = {}
@@ -45,7 +45,7 @@ def ttc_from_stable(matching : Matching, useGPA = True) -> Matching :
         for project in instance.projects : 
             for student_id in project_preferences[project.id] :
                  # If the student wants to be improved (wants to leave its current project) and is assigned to the selected project :
-                 if student_id in current_project_to_student[project_id] and student_id in students_to_improve : 
+                 if student_id in current_project_to_student[project.id] and student_id in students_to_improve :
                     project_points_student[project.id] = student_id
                     break 
         
@@ -64,7 +64,7 @@ def ttc_from_stable(matching : Matching, useGPA = True) -> Matching :
         for cycle in cycles : 
             new_matching = {student_id : student_points_projects[student_id] for student_id in cycle}
             for student_id in cycle : 
-                old_project, new_project = current_matching(student_id), new_matching(student_id)
+                old_project, new_project = current_matching[student_id], new_matching[student_id]
                 current_project_to_student[old_project].remove(student_id)
                 current_project_to_student[new_project].append(student_id)
                 current_matching[student_id] = new_project 
