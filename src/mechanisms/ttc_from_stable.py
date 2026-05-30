@@ -54,32 +54,40 @@ def ttc_from_stable(matching : Matching, useGPA = False) -> Matching :
         if not cycles : 
             # If we can't improve the matching
             students_blocked = {student_id for student_id in students_to_improve if student_points_projects[student_id] not in project_points_student}
-            if students_blocked : 
-                for student_id in students_blocked : 
-                    # We take the favourite project of the student off for another try
-                    student_preferences[student_id].pop(0)  
-            else : 
+            if students_blocked :
+                for student_id in students_blocked :
+                    student_preferences[student_id].pop(0)
+                    if student_preferences[student_id]:
+                        student_points_projects[student_id] = student_preferences[student_id][0]
+                    else:
+                        student_points_projects.pop(student_id, None)
+                        students_to_improve.discard(student_id)
+            else :
                 break
         
-        for cycle in cycles : 
+        for cycle in cycles :
             new_matching = {student_id : student_points_projects[student_id] for student_id in cycle}
-            for student_id in cycle : 
+            for student_id in cycle :
                 old_project, new_project = current_matching[student_id], new_matching[student_id]
                 current_project_to_student[old_project].remove(student_id)
                 current_project_to_student[new_project].append(student_id)
-                current_matching[student_id] = new_project 
+                current_matching[student_id] = new_project
                 student_id_preferences = instance.preferences[student_id]
                 if new_project in student_id_preferences :
                     new_assign_rank = student_id_preferences.index(new_project)
-                else : 
+                else :
                     new_assign_rank = len(student_id_preferences)
                 student_preferences[student_id] = list(student_id_preferences[:new_assign_rank])
+                if student_preferences[student_id] :
+                    student_points_projects[student_id] = student_preferences[student_id][0]
+                else :
+                    student_points_projects.pop(student_id, None)
+                    students_to_improve.discard(student_id)
 
-        
-        result_matching = Matching(instance)
-        for student_id, project_id in current_matching.items():
-            result_matching.assign(student_id, project_id)
-        return result_matching
+    result_matching = Matching(instance)
+    for student_id, project_id in current_matching.items():
+        result_matching.assign(student_id, project_id)
+    return result_matching
 
 
 def _find_all_cycles(students_to_improve, student_points_projects, project_point_student):
@@ -100,8 +108,10 @@ def _find_all_cycles(students_to_improve, student_points_projects, project_point
                 path_index[current_student] = len(path)
                 path.append(current_student)
                 project = student_points_projects[current_student]
-                if project in project_point_student : 
+                if project in project_point_student :
                     current_student = project_point_student[project]
+                else :
+                    break
             for student in path : 
                 visited.add(student)
     return cycles
