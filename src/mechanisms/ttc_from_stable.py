@@ -1,5 +1,6 @@
 from core.instance import Instance
 from core.matching import Matching 
+import random
 
 """
 We choose to implement the ttc that improves a stable solution
@@ -16,14 +17,24 @@ def ttc_from_stable(matching : Matching, useGPA = False) -> Matching :
     for student_id, project_id in current_matching.items() : 
         current_project_to_student[project_id].append(student_id)
 
-    # each project wants the best student on it, sorting them by GPA
+
+    # Using list of priorities for the schools
+    all_student_ids = [student.id for student in instance.students] 
     if instance.school_priorities : 
-        project_preferences = {project_id : list(preferences) for project_id, preferences in instance.school_priorities}
+        project_preferences = {}
+        for project in instance.projects : 
+            if project.id in instance.school_priorities : 
+                project_preferences[project.id] = list(instance.school_priorities[project.id])
+            # If no priorities, we shuffle all the student_ids to create the priority list
+            else : 
+                project_preferences[project.id] = random.sample(all_student_ids, len(all_student_ids))
+    # Using GPA if no list of priorities : /!\ no difference between the projects preferences
     elif useGPA: 
         sorted_by_gpa = sorted(instance.students, key=lambda s: s.gpa or 0, reverse=True)
         project_preferences = {project.id : [student.id for student in sorted_by_gpa] for project in instance.projects}
     else :
-        project_preferences = {project.id : list(matching.assignments.keys()) for project in instance.projects}
+        project_preferences = {project.id : random.sample(all_student_ids, len(all_student_ids)) for project in instance.projects}
+
 
     # each students only keeps the projects that are strictly better than the one they currently have
     student_preferences = {}
@@ -39,8 +50,8 @@ def ttc_from_stable(matching : Matching, useGPA = False) -> Matching :
     student_points_projects = {student_id : student_preferences[student_id][0] for student_id in current_matching if student_preferences.get(student_id)}
     students_to_improve = set(student_points_projects)
 
+    # Looking for upgrading cycles
     while students_to_improve : 
-
         project_points_student = {}
         for project in instance.projects : 
             for student_id in project_preferences[project.id] :
