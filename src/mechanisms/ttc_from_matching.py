@@ -10,7 +10,7 @@ a stable one.
 """
 
 # Implementation of the "Top Trading Cycle" Algorithm
-def ttc_from_stable(matching : Matching, useGPA = False) -> Matching : 
+def ttc_from_matching(matching : Matching, useGPA = False) -> Matching : 
     instance = matching.instance
     current_matching = dict(matching.assignments)                                        # student.id -> project.id
     current_project_to_student = {project.id : [] for project in instance.projects}      # project.id -> [student.id]
