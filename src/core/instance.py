@@ -55,12 +55,19 @@ class Instance:
     def project(self, project_id: int) -> Project:
         return self._project_by_id[project_id]
 
-    # now, I thought for more a moment about what should we 
-    # consider when a student forgets or simply doesn't have a preference for a project, 
-    # and I decided that in this case, we will consider that the student id indifferent 
-    # to the remaining projects, and we will simply add all the projects to the student's 
-    # preference list behind the others. I think this is the most reasonable thing to do,
-    # and it also makes the implementation of the algorithms a bit easier later on.
-    # Also, everything will regarding this question eventually be implemented in the loaders.py
-    def rank_of(self, student_id:int, project_id:int) -> int:
-        return self.preferences[student_id].index(project_id)
+    def rank_of(self, student_id: int, project_id: int) -> int | None:
+        pref_list = self.preferences[student_id]
+        return pref_list.index(project_id) if project_id in pref_list else None
+    
+    def is_prefered(self, project_id: int, student_id: int, student_id_ref: int) -> bool:
+        if self.school_priorities is None:
+            return True
+        if project_id not in self.school_priorities:
+            return True
+        priority_list = self.school_priorities[project_id]
+        if student_id_ref not in priority_list:
+            return True
+        if student_id not in priority_list:
+            return False
+        return priority_list.index(student_id) < priority_list.index(student_id_ref)
+    

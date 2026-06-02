@@ -1,6 +1,8 @@
 import pandas as pd
 import json
 
+from core.instance import Instance, Student, Project
+
 
 ##################### Real data #####################
 
@@ -9,10 +11,12 @@ def clean_preferences(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna(subset=["stu_id", "proj_id", "points"]) # Remove rows with missing values
     df = df[df["points"].between(0, 100)] # Remove rows with invalid points
     df = df.sort_values("points", ascending=False).drop_duplicates(subset=["stu_id", "proj_id"]) # Keep the highest points for each student-project pair
+    df["stu_id"] = df["stu_id"].str[4:].astype(int) # Converts the string STU_X to the int X
+    df["proj_id"] = df["proj_id"].str[4:].astype(int) # Converts the string PRJ_X to the int X
     return df
 
 def complete_preferences(df: pd.DataFrame) -> pd.DataFrame:
-    """Add unranked projects with 0 points for each student to complete their preference list."""
+    """Add unranked projects with -1 points for each student to complete their preference list."""
     projects = df["proj_id"].unique()
     students = df["stu_id"].unique()
 
@@ -29,10 +33,14 @@ def sort_preferences_with_tiebreak(df: pd.DataFrame) -> pd.DataFrame:
     df = df.sort_values(by=["stu_id", "points"], ascending=[True, False], kind="stable") # Sort the DataFrame by student ID (ascending) and points (descending) with stable sorting to maintain the random order for ties
     return df
 
-def build_preferences(df: pd.DataFrame) -> dict[str, list[str]]:
-    """Group project IDs into an ordered list for each student ID."""
+def build_instance(df: pd.DataFrame) -> Instance:
+    """Build the Instance object from the input DataFrame."""
     preferences = df.groupby("stu_id")["proj_id"].apply(list).to_dict() # Group project IDs into a sorted list for each student ID
-    return preferences
+    return Instance(
+        students=tuple(Student(id=stu_id) for stu_id in preferences.keys()),
+        projects=tuple(Project(id=proj_id) for proj_id in sorted(df["proj_id"].unique())),
+        preferences=preferences
+    )
 
 
 ##################### Synthetic data #####################
@@ -42,14 +50,14 @@ pass
 
 ##################### Loaders #####################
 
-def load_dataset(file_path: str, data_type: str = "real") -> dict[str, list[str]]:
+def load_dataset(file_path: str, data_type: str = "real") -> Instance:
     """Load and format the dataset from a file path based on the specified data type."""
     if data_type == "real":
         df = pd.read_csv(file_path)
         df = clean_preferences(df)
         df = complete_preferences(df)
         df = sort_preferences_with_tiebreak(df)
-        return build_preferences(df)
+        return build_instance(df)
 
     elif data_type == "synthetic":
         with open(file_path, "r") as f:

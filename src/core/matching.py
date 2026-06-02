@@ -28,6 +28,10 @@ class Matching:
 
     def project_of(self, student_id: int) -> int | None:
         return self.assignments.get(student_id)
+
+    def project_rank_of(self, student_id: int) -> int | None:
+        proj_id = self.project_of(student_id)
+        return self.instance.rank_of(student_id, proj_id) if proj_id is not None else None
     
     def students_in(self, project_id: int) -> list[int]:
         return list(self._students_in_project[project_id])
