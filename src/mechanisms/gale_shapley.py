@@ -7,6 +7,9 @@ def gale_shapley(instance: Instance, useGPA = False) -> Matching:
     capacities = {project.id: project.capacity for project in instance.projects}
     free = deque(instance.students)
     next_proposal = {student.id: 0 for student in instance.students}
+    INF = float("inf")
+    if instance.school_priorities : 
+        rank = {project_id : {student_id : i for i, student_id in enumerate(order)} for project_id, order in instance.school_priorities.items()}
     
     while not len(free) == 0:
         student = free[0]
@@ -27,7 +30,15 @@ def gale_shapley(instance: Instance, useGPA = False) -> Matching:
 
         else:
             assigned_students = matching.students_in(project.id)
-            if useGPA : 
+            if instance.school_priorities : 
+                worst_assigned_student = max(assigned_students, key=lambda x : rank[project_id].get(x, INF))
+                # if the current student is better than the worse assigned student 
+                if rank[project_id].get(student, INF) < rank[project_id][worst_assigned_student] : 
+                    matching.unassign(worst_assigned_student)
+                    matching.assign(student, project_id)
+                    free.popleft() # pop student, the head of the queue (because free is a double headed queue "deque")
+                    free.append(worst_assigned_student)
+            elif useGPA : 
                 former_student_id = min(assigned_students, key=lambda s: instance.students[s].gpa)
                 former_student = instance.students[former_student_id]
 
