@@ -1,9 +1,13 @@
 from core.instance import Instance
 from core.matching import Matching
 
-def serial_dictatorship(instance: Instance, order: list[int]) -> Matching:
+def serial_dictatorship(instance: Instance, order: list[int] = None) -> Matching:
     matching = Matching(instance)
     capacities = {project.id: project.capacity for project in instance.projects}
+
+    if order == None : 
+        order = [student.id for student in instance.students]
+
     for student_id in order:
         for project_id in instance.preferences[student_id]:
             if capacities[project_id] > 0:
