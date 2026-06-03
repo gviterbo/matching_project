@@ -1,5 +1,4 @@
-from core.instance import Instance
-from core.matching import Matching
+from core import Instance, Matching
 
 def serial_dictatorship(instance: Instance, order: list[int] = None) -> Matching:
     matching = Matching(instance)

@@ -6,6 +6,9 @@ class Student:
     id: int
     gpa: float | None = None
 
+    def __str__(self) -> str:
+        return f"Student {self.id:4d} (gpa : {self.gpa or "-"})"
+
 
 @dataclass(frozen=True)
 class Project: 
@@ -54,7 +57,7 @@ class Instance:
 
     def project(self, project_id: int) -> Project:
         return self._project_by_id[project_id]
-
+    
     def rank_of(self, student_id: int, project_id: int) -> int | None:
         pref_list = self.preferences[student_id]
         return pref_list.index(project_id) if project_id in pref_list else None
@@ -71,3 +74,24 @@ class Instance:
             return False
         return priority_list.index(student_id) < priority_list.index(student_id_ref)
     
+    def __str__(self) -> str:
+        lines = []
+            
+        lines.append("\n=== Preferences (Student ID -> Project IDs) ===")
+        if self.preferences:
+            for student_id, project_ids in self.preferences.items():
+                lines.append(f"  {self.student(student_id)} : {project_ids}")
+        else:
+            lines.append("  None")
+            
+        lines.append("\n=== School Priorities (Project ID -> Student IDs) ===")
+        if self.school_priorities is not None:
+            if self.school_priorities:
+                for project_id, student_ids in self.school_priorities.items():
+                    lines.append(f"  Project {project_id:4d} : {student_ids}")
+            else:
+                lines.append("  None")
+        else:
+            lines.append("  None")
+            
+        return "\n".join(lines)

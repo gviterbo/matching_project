@@ -60,7 +60,7 @@ def top_n_assigned_cost(matching: Matching, n: int):
     
     for student in matching.instance.students:
         assigned_proj_rank = matching.project_rank_of(student.id)
-        count += 0 if 0 <= assigned_proj_rank < n else 1
+        count += 0 if assigned_proj_rank is not None and 0 <= assigned_proj_rank < n else 1
     
     return count / max_theoretical_count
 

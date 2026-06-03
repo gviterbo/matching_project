@@ -1,7 +1,5 @@
 import pandas as pd
-import json
-
-from core.instance import Instance, Student, Project
+from core import Instance, Student, Project
 
 
 ##################### Real data #####################
@@ -33,35 +31,28 @@ def sort_preferences_with_tiebreak(df: pd.DataFrame) -> pd.DataFrame:
     df = df.sort_values(by=["stu_id", "points"], ascending=[True, False], kind="stable") # Sort the DataFrame by student ID (ascending) and points (descending) with stable sorting to maintain the random order for ties
     return df
 
-def build_instance(df: pd.DataFrame) -> Instance:
+def build_instance(df: pd.DataFrame, capacity: int) -> Instance:
     """Build the Instance object from the input DataFrame."""
     preferences = df.groupby("stu_id")["proj_id"].apply(list).to_dict() # Group project IDs into a sorted list for each student ID
     return Instance(
         students=tuple(Student(id=stu_id) for stu_id in preferences.keys()),
-        projects=tuple(Project(id=proj_id) for proj_id in sorted(df["proj_id"].unique())),
+        projects=tuple(Project(id=int(proj_id), capacity=capacity) for proj_id in sorted(df["proj_id"].unique())),
         preferences=preferences
     )
 
-
-##################### Synthetic data #####################
-
-pass
-
-
-##################### Loaders #####################
-
-def load_dataset(file_path: str, data_type: str = "real") -> Instance:
-    """Load and format the dataset from a file path based on the specified data type."""
-    if data_type == "real":
+def load_dataset(file_path: str, capacity: int = 5) -> Instance:
+    try:
         df = pd.read_csv(file_path)
         df = clean_preferences(df)
         df = complete_preferences(df)
         df = sort_preferences_with_tiebreak(df)
-        return build_instance(df)
-
-    elif data_type == "synthetic":
-        with open(file_path, "r") as f:
-            return json.load(f)
-
-    else:
-        raise ValueError("Unknown data type. Choose 'real' or 'synthetic'.")
+        df = build_instance(df, capacity)
+        return df
+    
+    except FileNotFoundError:
+        print(f"Le fichier spécifié est introuvable : {file_path}")
+        return None
+    
+    except PermissionError:
+        print(f"Permissions insuffisantes pour lire le fichier : {file_path}")
+        return None

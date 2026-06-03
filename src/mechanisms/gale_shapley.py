@@ -1,5 +1,4 @@
-from core.instance import Instance
-from core.matching import Matching
+from core import Instance, Matching
 from collections import deque
 
 def gale_shapley(instance: Instance, useGPA = False) -> Matching:
