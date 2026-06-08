@@ -1,8 +1,8 @@
 import numpy as np
 import itertools as it
 import scipy.optimize as sp_opt
-import permutil as pu
-import mallows_model as mm
+from . import permutil as pu
+from . import mallows_model as mm
 
 #******** Complete rankings **********#
 #*************************************#

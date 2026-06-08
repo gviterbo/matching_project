@@ -33,9 +33,6 @@ def borda_welfare_cost(matching: Matching) -> float:
     """
     total_borda_satisfaction = 0
     max_borda_possible = 0
-
-    if max_borda_possible == 0:
-        return 0.0
     
     for student in matching.instance.students:
         assigned_proj_rank = matching.project_rank_of(student.id)
@@ -43,6 +40,9 @@ def borda_welfare_cost(matching: Matching) -> float:
 
         total_borda_satisfaction += len_pref_list - assigned_proj_rank - 1 if assigned_proj_rank is not None else 0
         max_borda_possible += len_pref_list - 1
+
+    if max_borda_possible == 0:
+        return 0.0
         
     return (max_borda_possible - total_borda_satisfaction) / max_borda_possible
 
@@ -96,9 +96,6 @@ def nash_welfare_cost(matching: Matching):
     """
     total_log_borda = 0.0
     max_log_possible = 0.0
-
-    if max_log_possible == 0:
-        return 0.0
     
     for student in matching.instance.students:
         assigned_proj_rank = matching.project_rank_of(student.id)
@@ -106,6 +103,9 @@ def nash_welfare_cost(matching: Matching):
                 
         total_log_borda += math.log((len_pref_list - assigned_proj_rank + 1) if assigned_proj_rank is not None else 1)
         max_log_possible += math.log(len_pref_list + 1)
+
+    if max_log_possible == 0:
+        return 0.0
         
     return (max_log_possible - total_log_borda) / max_log_possible
 

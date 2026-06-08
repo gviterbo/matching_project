@@ -64,9 +64,9 @@ class Instance:
     
     def is_prefered(self, project_id: int, student_id: int, student_id_ref: int) -> bool:
         if self.school_priorities is None:
-            return True
+            return False
         if project_id not in self.school_priorities:
-            return True
+            return False
         priority_list = self.school_priorities[project_id]
         if student_id_ref not in priority_list:
             return True

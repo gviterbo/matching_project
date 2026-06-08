@@ -1,5 +1,8 @@
 import pandas as pd
+import numpy as np
 from core import Instance, Student, Project
+from top_k_mallows import mallows_kendall as mk
+
 
 
 ##################### Real data #####################
@@ -40,19 +43,56 @@ def build_instance(df: pd.DataFrame, capacity: int) -> Instance:
         preferences=preferences
     )
 
-def load_dataset(file_path: str, capacity: int = 5) -> Instance:
+def load_real_instance(file_path: str, capacity: int = 5) -> Instance:
+    """Loads and processes a real-world matching instance from a CSV file.
+    
+    Args:
+        file_path (str): Path to the CSV file containing student preferences.
+        capacity (int, default=5): Max capacity per project.
+        
+    Returns:
+        Instance: Object with processed students, projects, and resolved preferences,
+                  or None if a file/permission error occurs.
+    """
     try:
         df = pd.read_csv(file_path)
         df = clean_preferences(df)
         df = complete_preferences(df)
         df = sort_preferences_with_tiebreak(df)
-        df = build_instance(df, capacity)
-        return df
+        instance = build_instance(df, capacity)
+        return instance
     
     except FileNotFoundError:
-        print(f"Le fichier spécifié est introuvable : {file_path}")
+        print(f"The specified file could not be found: {file_path}")
         return None
     
     except PermissionError:
-        print(f"Permissions insuffisantes pour lire le fichier : {file_path}")
+        print(f"Insufficient permissions to read the file: {file_path}")
         return None
+
+
+
+##################### Synthetic data #####################
+
+def create_synthetic_instance(n_students, n_projects, capacity=5, phi=0.5, s0=None, seed=42):
+    """Generates a matching problem instance with Mallows-model preferences.
+    
+    Args:
+        n_students (int): Number of students.
+        n_projects (int): Number of projects.
+        capacity (int, default=5): Max capacity per project.
+        phi (float, default=0.5): Dispersion (0: high consensus, 1: random).
+        s0 (ndarray, optional): Consensus ranking. Defaults to [0, ..., n_projects-1].
+        seed (int, default=42): Seed for reproducibility.
+        
+    Returns:
+        Instance: Object with students, projects, and sorted preferences.
+    """
+    np.random.seed(seed)
+    raw = mk.sample(m=n_students, n=n_projects, phi=phi, s0=s0) # raw[i][j] = rank of project j for student i -> argsort for ordered list
+
+    return Instance(
+        students=tuple(Student(id=i) for i in range(n_students)),
+        projects=tuple(Project(id=j, capacity=capacity) for j in range(n_projects)),
+        preferences={i: list(np.argsort(raw[i])) for i in range(n_students)}
+    )

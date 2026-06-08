@@ -1,7 +1,8 @@
 import numpy as np
 import itertools as it
-import mallows_kendall as mk
-import mallows_hamming as mh
+from . import mallows_kendall as mk
+from . import mallows_hamming as mh
+from . import mallows_model as mm
 
 def max_dist(n, dist_name='k'):
     if dist_name=='k': return int(n*(n-1)/2)
