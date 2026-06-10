@@ -88,11 +88,19 @@ def create_synthetic_instance(n_students, n_projects, capacity=5, phi=0.5, s0=No
     Returns:
         Instance: Object with students, projects, and sorted preferences.
     """
+
     np.random.seed(seed)
+
+    # Students preferences
     raw = mk.sample(m=n_students, n=n_projects, phi=phi, s0=s0) # raw[i][j] = rank of project j for student i -> argsort for ordered list
+    
+    # Project preferences
+    gpas = np.random.choice([round(x * 0.01, 2) for x in range(401)], n_students, replace=False) # Generate unique GPAs between 0.00 and 4.00 for each student
+    project_preferences = sorted(range(len(gpas)), key=lambda i: gpas[i], reverse=True) # List of student IDs sorted by GPA in descending order
 
     return Instance(
-        students=tuple(Student(id=i) for i in range(n_students)),
+        students=tuple(Student(id=i, gpa=gpas[i]) for i in range(n_students)),
         projects=tuple(Project(id=j, capacity=capacity) for j in range(n_projects)),
-        preferences={i: list(np.argsort(raw[i])) for i in range(n_students)}
+        preferences={i: list(np.argsort(raw[i])) for i in range(n_students)},
+        school_priorities={j: project_preferences for j in range(n_projects)}
     )

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from core.matching import Matching
 
-def plot_rank_distribution(matching: Matching):
+def plot_rank_distribution(matching: Matching, title=None, figsize=(8, 3)):
     """
     Generates a bar chart showing the distribution of preference ranks obtained
     by students, including unassigned students and students assigned outside their choices.
@@ -36,12 +36,12 @@ def plot_rank_distribution(matching: Matching):
         labels.append("Unassigned")
         counts.append(unassigned_count)
         
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=figsize)
     bars = ax.bar(labels, counts, color="#1f77b4", edgecolor="black")
     
     ax.set_xlabel("Preference Rank")
     ax.set_ylabel("Number of Students")
-    ax.set_title("Distribution of Assigned Preference Ranks")
+    ax.set_title("Distribution of Assigned Preference Ranks" + (f" - {title}" if title else ""))
     ax.grid(axis='y', linestyle='--', alpha=0.7)
 
     plt.xticks(rotation=45, ha='right')
@@ -49,12 +49,12 @@ def plot_rank_distribution(matching: Matching):
     for bar in bars:
         yval = bar.get_height()
         ax.text(bar.get_x() + bar.get_width()/2, yval + 0.1, int(yval), ha='center', va='bottom')
-        
+    
     plt.tight_layout()
     plt.show()
 
 
-def plot_project_occupancy(matching: Matching):
+def plot_project_occupancy(matching: Matching, title=None, figsize=(10, 3)):
     """
     Generates a stacked bar chart showing the occupancy rate of each project
     relative to its maximum capacity.
@@ -77,14 +77,14 @@ def plot_project_occupancy(matching: Matching):
     assigned_counts = [p["assigned"] for p in projects_data]
     empty_slots = [p["empty"] for p in projects_data]
     
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=figsize)
     
     ax.bar(project_ids, assigned_counts, label="Occupied Slots", color="#2ca02c", edgecolor="black")
     ax.bar(project_ids, empty_slots, bottom=assigned_counts, label="Empty Slots", color="#ff7f0e", alpha=0.6, edgecolor="black")
     
     ax.set_ylabel("Number of Students / Capacity")
     ax.set_xlabel("Projects")
-    ax.set_title("Project Occupancy vs Capacity")
+    ax.set_title("Project Occupancy vs Capacity" + (f" - {title}" if title else ""))
     ax.legend()
     ax.grid(axis='y', linestyle='--', alpha=0.7)
     
