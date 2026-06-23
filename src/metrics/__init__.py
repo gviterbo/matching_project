@@ -1,2 +1,3 @@
 from .cost import rank_sum_cost, borda_welfare_cost, top_n_assigned_cost, square_rank_sum_cost, nash_welfare_cost, max_rank_cost, unassigned_students_cost
 from .stability import blocking_pairs_stability_score, justified_envy_stability_score, wasteful_capacity_stability_score
+from .inference import compute_borda_consensus, estimate_kendall_mallows_phi, infer_kendall_mallows_parameters
