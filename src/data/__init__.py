@@ -1,1 +1,3 @@
 from .loaders import load_real_instance, create_synthetic_instance
+from .inference import compute_borda_consensus, estimate_kendall_mallows_phi, infer_kendall_mallows_parameters
+

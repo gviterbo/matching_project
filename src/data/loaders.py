@@ -43,12 +43,13 @@ def build_instance(df: pd.DataFrame, capacity: int) -> Instance:
         preferences=preferences
     )
 
-def load_real_instance(file_path: str, capacity: int = 5) -> Instance:
+def load_real_instance(file_path: str, capacity: int = 5, complete: bool = True) -> Instance:
     """Loads and processes a real-world matching instance from a CSV file.
     
     Args:
         file_path (str): Path to the CSV file containing student preferences.
         capacity (int, default=5): Max capacity per project.
+        complete (bool, default=True): Whether to complete missing preferences.
         
     Returns:
         Instance: Object with processed students, projects, and resolved preferences,
@@ -57,7 +58,8 @@ def load_real_instance(file_path: str, capacity: int = 5) -> Instance:
     try:
         df = pd.read_csv(file_path)
         df = clean_preferences(df)
-        df = complete_preferences(df)
+        if complete:
+            df = complete_preferences(df)
         df = sort_preferences_with_tiebreak(df)
         instance = build_instance(df, capacity)
         return instance
